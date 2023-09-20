@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Geo116</title>
+    <link rel="shortcut icon" href="http://geo116.ru/wp-content/uploads/cropped-HP-32x32.png" />
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        }
+      #map {
+        height: 100%;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="pano" style="width: 65%; height: 100%; float:left;"></div>
+    <div id="map" style="width: 35%; height: 100%; float:left;"></div>
+    <div
+   style="
+      top: 1.7%;
+      left: 90%;
+      position: absolute;
+      z-index: 1;
+      visibility: show;">
+<a href="http://geo116.ru/" target="_blank"><img alt="" src="http://geo116.ru/wp-content/uploads/cropped-HP-32x32.png" /></a>
+</div>
+    <script>
+/*
+ * Click the map to set a new location for the Street View camera.
+ */
+
+var map;
+var panorama;
+
+function initMap() {
+  var berkeley = {lat: 0.0, lng: 0.0};
+  var sv = new google.maps.StreetViewService();
+
+  panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'));
+
+  // Set up the map.
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: berkeley,
+    zoom: 2,
+    zoomControl: false,
+    streetViewControl: false,
+    mapTypeId: google.maps.MapTypeId.TERRAIN
+  });
+
+  // Set the initial Street View camera to the center of the map
+  sv.getPanorama({location: berkeley, radius: 50}, processSVData);
+
+  // Look for a nearby Street View panorama when the map is clicked.
+  // getPanoramaByLocation will return the nearest pano when the
+  // given radius is 50 meters or less.
+  map.addListener('click', function(event) {
+    sv.getPanorama({location: event.latLng, radius: 1000}, processSVData);
+  });
+}
+
+function processSVData(data, status) {
+  if (status === google.maps.StreetViewStatus.OK) {
+    var marker = new google.maps.Marker({
+      position: data.location.latLng,
+      map: map,
+      title: data.location.description
+    });
+
+    panorama.setPano(data.location.pano);
+    panorama.setPov({
+      heading: 270,
+      pitch: 0
+    });
+    panorama.setVisible(true);
+
+    marker.addListener('click', function() {
+      var markerPanoID = data.location.pano;
+      // Set the Pano to use the passed panoID.
+      panorama.setPano(markerPanoID);
+      panorama.setPov({
+        heading: 270,
+        pitch: 0
+      });
+      panorama.setVisible(true);
+    });
+  } else {
+    console.error('Street View data not found for this location.');
+  }
+}
+
+    </script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCuhDb-9BPvQMWlrb9_DoxVb1oA7axQ77I&signed_in=true&callback=initMap"
+        async defer>
+    </script>
+    
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-69848318-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+  </body>
+</html>
